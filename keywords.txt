@@ -1,0 +1,41 @@
+#######################################
+# Syntax Coloring Map For PCA9698 Library
+#######################################
+
+#######################################
+# Class (KEYWORD1)
+#######################################
+
+PCA9698 KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+setMode     	    KEYWORD2
+setModePort    	    KEYWORD2
+setModePorts        KEYWORD2
+digitalWrite 	    KEYWORD2
+digitalWritePort 	KEYWORD2
+digitalWritePorts 	KEYWORD2
+getOutputPin        KEYWORD2
+getOutputPort   	KEYWORD2
+getOutputPorts      KEYWORD2
+togglePin           KEYWORD2
+togglePort          KEYWORD2
+togglePorts         KEYWORD2
+digitalRead		    KEYWORD2
+digitalReadPort		KEYWORD2
+digitalReadPorts	KEYWORD2
+updateOutput        KEYWORD2
+updateInput         KEYWORD2
+updateAll           KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+PCA9698_SLAVE_ADDRESS   LITERAL1 
+I2C_STANDARD_MODE       LITERAL1
+I2C_FAST_MODE           LITERAL1
+I2C_FAST_MODE_PLUS      LITERAL1

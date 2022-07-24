@@ -1,0 +1,22 @@
+{
+    "name": "PCA9698",
+    "keywords": "gpio, i2c, twi, driver",
+    "description": "A simple and efficient PCA9698 library for embedded C++.",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/Justin-Pl/PCA9698.git"
+    },
+    "version": "1.0",
+    "authors": {
+      "name": "Justin P."
+    },
+    "exclude": [
+      ".github",
+      "extras"
+    ],
+    "frameworks": "*",
+    "platforms": "*",
+    "build": {
+      "libArchive": false
+    }
+  }
