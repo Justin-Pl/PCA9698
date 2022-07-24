@@ -11,7 +11,7 @@ Arduino library for the GPIO Driver PCA9698 from NXP.
 3. In the Arduino IDE, navigate to Sketch > Include Library > Add .zip library
 
 ## Functions
-setMode()
+setMode()\n
 setModePort()
 setModePorts()
 digitalWrite()
