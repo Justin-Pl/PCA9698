@@ -2,31 +2,23 @@
 #include "PCA9698.h"
 
 /* Class Constructor */
-PCA9698 driver;
-
-/* Variables */
-uint8_t ledState;
+PCA9698 gpio;
 
 void setup()
 {
     uint8_t modes[5] = {0x00, 0x00, 0x00, 0x00, 0x00};
-    driver.setModePorts(modes, sizeof(modes));
-
-    pinMode(LED_BUILTIN, OUTPUT);
-    digitalWrite(LED_BUILTIN, LOW);
+    gpio.setModePorts(modes, sizeof(modes));
 }
 
 void loop()
 {
-    driver.updateInput();
+    gpio.updateInput();
     uint8_t input[5];
-    driver.digitalReadPorts(input, sizeof(input));
+    gpio.digitalReadPorts(input, sizeof(input));
     for (uint8_t index = 0; index < sizeof(input); index++)
     {
-        if (input[index])
-        {
-            digitalWrite(LED_BUILTIN, !ledState);
-            ledState = !ledState;
-        }
+        Serial.print(index, DEC);
+        Serial.println(input[index]);
     }
+    delay(100);
 }
