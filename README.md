@@ -4,7 +4,8 @@ Arduino library for the GPIO Driver PCA9698 from NXP.
 ## Installation 
 1. Navigate to the Releases page.
 2. Download the latest release.
-3. In the Arduino IDE, navigate to Sketch > Include Library > Add .zip library
+3. Rename to PCA9698.zip
+4. In the Arduino IDE, navigate to Sketch > Include Library > Add .zip library
 
 ## Functions
 setMode()\
@@ -76,7 +77,7 @@ void setup()
     gpio.setMode(0, OUTPUT);  
     gpio.setMode(1, INPUT);
     
-    //First param is the IO bank. There are 5 banks are 8bit.
+    //First param is the IO bank. There are 5 banks of 8bit.
     //Second param is the bitmask for the bank. 1 = output, 0 = input.
     gpio.setModePort(1, 0b11110000);
     
