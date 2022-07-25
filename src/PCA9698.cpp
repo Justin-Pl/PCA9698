@@ -5,31 +5,27 @@
 /* private */
 void PCA9698::writeI2C(uint8_t command, uint8_t data)
 {
-    Wire.beginTransmission(_adress);
-    Wire.write(command);
-    Wire.write(data);
-    Wire.endTransmission();
+    _I2CPort->beginTransmission(_adress);
+    _I2CPort->write(command);
+    _I2CPort->write(data);
+    _I2CPort->endTransmission();
 }
 
 void PCA9698::writeI2C(uint8_t command, uint8_t *data, uint8_t length)
 {
-    Wire.beginTransmission(_adress);
-    Wire.write(command);
-    for (uint8_t _byteNum = 0; _byteNum < length; length++)
-    {
-        Wire.write(*data);
-        data++;
-    }
-    Wire.endTransmission();
+    _I2CPort->beginTransmission(_adress);
+    _I2CPort->write(command);
+    _I2CPort->write(data, length);
+    _I2CPort->endTransmission();
 }
 
 void PCA9698::readI2C(uint8_t command, uint8_t *data, uint8_t length)
 {
-    Wire.beginTransmission(_adress);
-    Wire.write(command);
-    Wire.endTransmission();
-    Wire.requestFrom(_adress, length);
-    while (Wire.available()) Wire.readBytes(data, length);
+    _I2CPort->beginTransmission(_adress);
+    _I2CPort->write(command);
+    _I2CPort->endTransmission();
+    _I2CPort->requestFrom(_adress, length);
+	_I2CPort->readBytes(data, length);
 }
 
 /* public */
@@ -41,8 +37,9 @@ void PCA9698::readI2C(uint8_t command, uint8_t *data, uint8_t length)
             Speed of I2C Bus. If empty 100kHz.
     @return PCA9698 obejct.
 */
-PCA9698::PCA9698(uint8_t addr = PCA9698_SLAVE_ADDRESS, uint32_t I2Cspeed = I2C_STANDARD_MODE)
+PCA9698::PCA9698(uint8_t addr, uint32_t I2Cspeed, TwoWire &wirePort)
 {
+	_I2CPort = &wirePort;
     _adress = addr;
     _speed = I2Cspeed;
     for (uint8_t _byteNum = 0; _byteNum < sizeof(_mode); _byteNum++)
@@ -51,8 +48,8 @@ PCA9698::PCA9698(uint8_t addr = PCA9698_SLAVE_ADDRESS, uint32_t I2Cspeed = I2C_S
         _outputPort[_byteNum] = 0x00;
         _inputPort[_byteNum] = 0x00;
     }
-    Wire.begin();
-    Wire.setClock(_speed);
+    _I2CPort->begin();
+    _I2CPort->setClock(_speed);
 }
 
 /*!

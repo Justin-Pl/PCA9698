@@ -41,6 +41,7 @@
 class PCA9698
 {
 private:
+	TwoWire *_I2CPort;
     uint8_t _adress;
     uint32_t _speed;
     uint8_t _mode[5];
@@ -50,7 +51,7 @@ private:
     void writeI2C(uint8_t command, uint8_t *data, uint8_t length);
     void readI2C(uint8_t command, uint8_t *data, uint8_t length);
 public:
-    PCA9698(uint8_t addr = PCA9698_SLAVE_ADDRESS, uint32_t I2Cspeed = I2C_STANDARD_MODE);
+    PCA9698(uint8_t addr = PCA9698_SLAVE_ADDRESS, uint32_t I2Cspeed = I2C_STANDARD_MODE, TwoWire &wirePort = Wire);
     void setMode(uint8_t pin, uint8_t mode);
     void setModePort(uint8_t portNum, uint8_t port);
     void setModePorts(uint8_t *ports, uint8_t length);
