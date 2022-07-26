@@ -48,6 +48,14 @@ PCA9698::PCA9698(uint8_t addr, uint32_t I2Cspeed, TwoWire &wirePort)
         _outputPort[_byteNum] = 0x00;
         _inputPort[_byteNum] = 0x00;
     }
+}
+
+/*!
+    @brief  Init I2C bus.
+    @return None (void). 
+*/
+void PCA9698::begin()
+{
     _I2CPort->begin();
     _I2CPort->setClock(_speed);
 }
