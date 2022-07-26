@@ -1,5 +1,5 @@
 # PCA9698
-Arduino library for the GPIO Driver PCA9698 from NXP.
+Arduino library for the GPIO Driver PCA9698 from NXP. Tested and functional on AVR boards. Function on megaAVR boards can be buggy and incorrect, because of the Wire.h.
 
 ## Installation 
 1. Navigate to the Releases page.
