@@ -37,11 +37,10 @@ void PCA9698::readI2C(uint8_t command, uint8_t *data, uint8_t length)
             Speed of I2C Bus. If empty 100kHz.
     @return PCA9698 obejct.
 */
-PCA9698::PCA9698(uint8_t addr, uint32_t I2Cspeed, TwoWire &wirePort)
+PCA9698::PCA9698(uint8_t addr, TwoWire &wirePort)
 {
     _I2CPort = &wirePort;
     _adress = addr;
-    _speed = I2Cspeed;
     for (uint8_t _byteNum = 0; _byteNum < sizeof(_mode); _byteNum++)
     {
         _mode[_byteNum] = 0x00;
@@ -52,12 +51,14 @@ PCA9698::PCA9698(uint8_t addr, uint32_t I2Cspeed, TwoWire &wirePort)
 
 /*!
     @brief  Init I2C bus.
+    @param  speed
+            Sets the speed of the bus. 100KHz default.
     @return None (void). 
 */
-void PCA9698::begin()
+void PCA9698::begin(uint32_t speed)
 {
     _I2CPort->begin();
-    _I2CPort->setClock(_speed);
+    _I2CPort->setClock(speed);
 }
 
 /*!
