@@ -12,6 +12,7 @@ PCA9698	KEYWORD1
 # Methods and Functions (KEYWORD2)
 #######################################
 
+begin KEYWORD2
 setMode	KEYWORD2
 setModePort	KEYWORD2
 setModePorts	KEYWORD2
