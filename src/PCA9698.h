@@ -41,7 +41,7 @@
 class PCA9698
 {
 private:
-	TwoWire *_I2CPort;
+    TwoWire *_I2CPort;
     uint8_t _adress;
     uint32_t _speed;
     uint8_t _mode[5];

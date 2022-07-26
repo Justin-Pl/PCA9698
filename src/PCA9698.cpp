@@ -25,7 +25,7 @@ void PCA9698::readI2C(uint8_t command, uint8_t *data, uint8_t length)
     _I2CPort->write(command);
     _I2CPort->endTransmission();
     _I2CPort->requestFrom(_adress, length);
-	_I2CPort->readBytes(data, length);
+    _I2CPort->readBytes(data, length);
 }
 
 /* public */
@@ -39,7 +39,7 @@ void PCA9698::readI2C(uint8_t command, uint8_t *data, uint8_t length)
 */
 PCA9698::PCA9698(uint8_t addr, uint32_t I2Cspeed, TwoWire &wirePort)
 {
-	_I2CPort = &wirePort;
+    _I2CPort = &wirePort;
     _adress = addr;
     _speed = I2Cspeed;
     for (uint8_t _byteNum = 0; _byteNum < sizeof(_mode); _byteNum++)
