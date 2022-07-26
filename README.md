@@ -8,6 +8,7 @@ Arduino library for the GPIO Driver PCA9698 from NXP.
 4. In the Arduino IDE, navigate to Sketch > Include Library > Add .zip library
 
 ## Functions
+begin()\
 setMode()\
 setModePort()\
 setModePorts()\
@@ -28,7 +29,7 @@ updateInput()\
 updateAll()
 
 ## Guide
-First include the library and create a class object. When no arguments used the class will be use 0x20 as basic I2C adress and 100kHz as I2C speed.
+First include the library and create a class object. When no arguments used the class will be use 0x20 as basic I2C adress. The **begin()** function initialize the I2C bus.
 ```c++
 #include <PCA9698.h>
 
@@ -36,7 +37,11 @@ PCA9698 gpio;
 
 void setup()
 {
-
+    //Init the I2C bus and must be called in setup
+    //Speed is optional. If called empty, default is 100 KHz
+    gpio.begin();
+    //or
+    //gpio.begin(I2C_FAST_MODE);
 }
 
 void loop()
@@ -44,13 +49,13 @@ void loop()
 
 }
 ```
-Or use some custom adress and other speeds. The speeds are predefined as **I2C_Standard_Mode** , **I2C_FAST_MODE** , **I2C_FAST_MODE_PLUS**.
+Or use some custom adress.
 ```c++
 #include <PCA9698.h>
 
 #define addr  0x21  //I2C Adress of the PCA9698
 
-PCA9698 gpio = (addr, I2C_FAST_MODE);  //Config the PCA9698 with adress 0x21 and 400000KHz bus speed
+PCA9698 gpio = (addr);  //Config the PCA9698 with adress 0x21
 
 void setup()
 {
@@ -72,6 +77,8 @@ PCA9698 gpio;
 
 void setup()
 {
+    gpio.begin();   //Call to init I2C Bus
+
     //First param is the pin from 0 - 39
     //Second param is the mode of the IO
     gpio.setMode(0, OUTPUT);  
@@ -104,6 +111,8 @@ PCA9698 gpio;
 
 void setup()
 {
+    gpio.begin();   //Call to init I2C Bus
+
     uint8_t modes[5] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF};  //Config all IOs as output
     gpio.setModePorts(modes, sizeof(modes));
 }
@@ -137,6 +146,8 @@ PCA9698 gpio;
 
 void setup()
 {
+    gpio.begin();   //Call to init I2C Bus
+
     uint8_t modes[5] = {0x00, 0x00, 0x00, 0x00, 0x00};  //Config all IOs as input
     gpio.setModePorts(modes, sizeof(modes));
 }
