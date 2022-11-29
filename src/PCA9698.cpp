@@ -19,6 +19,15 @@ void PCA9698::writeI2C(uint8_t command, uint8_t *data, uint8_t length)
     _I2CPort->endTransmission();
 }
 
+uint8_t PCA9698::readI2C(uint8_t command)
+{
+    _I2CPort->beginTransmission(_adress);
+    _I2CPort->write(command);
+    _I2CPort->endTransmission();
+    _I2CPort->requestFrom(_adress, 1);
+    return _I2CPort->read();
+}
+
 void PCA9698::readI2C(uint8_t command, uint8_t *data, uint8_t length)
 {
     _I2CPort->beginTransmission(_adress);
@@ -51,14 +60,33 @@ PCA9698::PCA9698(uint8_t addr, TwoWire &wirePort)
 
 /*!
     @brief  Init I2C bus.
+    @param  modeConfig
+            Can control the OE polarity, output change on ack or stop, the ability of the device to respond to a 'GPIO All Call' and the respond to SMBAlerts. Default is 0x02.
     @param  speed
             Sets the speed of the bus. 100KHz default.
     @return None (void). 
 */
-void PCA9698::begin(uint32_t speed)
+void PCA9698::begin(uint8_t modeConfig, uint32_t speed)
 {
+    uint8_t intMask[5] = {0x00, 0x00, 0x00, 0x00, 0x00};
     _I2CPort->begin();
     _I2CPort->setClock(speed);
+    writeI2C(MODE, modeConfig & (MODE_OEPOL | MODE_OCH | MODE_IOAC | MODE_SMBA));
+    writeI2C(IO_CONFIG_BANK0 | AUTO_INCREMENT, _mode, sizeof(_mode));
+    writeI2C(MASK_INTERRUPT_BANK0 | AUTO_INCREMENT, intMask, sizeof(intMask));
+    updateAll();
+}
+
+/*!
+    @brief  Change the PCA9698 mode configuration.
+    @param  modeConfig
+            Can control the OE polarity, output change on ack or stop, the ability of the device to respond to a 'GPIO All Call' and the respond to SMBAlerts. Default is 0x02.
+    @return None (void). 
+*/
+void PCA9698::config(uint8_t mode)
+{
+    mode &= (MODE_OEPOL | MODE_OCH | MODE_IOAC | MODE_SMBA);
+    writeI2C(MODE, mode);
 }
 
 /*!
@@ -81,7 +109,7 @@ void PCA9698::setMode(uint8_t pin, uint8_t mode)
     {
         _mode[portNum] &= ~(1 << (pin - (8 * portNum))); 
     }
-    writeI2C((0x18 + portNum), _mode[portNum]); //0x18 first IO Register plus register num
+    writeI2C((IO_CONFIG_BANK0 + portNum), _mode[portNum]); //0x18 first IO Register plus register num
 }
 
 /*!
@@ -96,7 +124,7 @@ void PCA9698::setModePort(uint8_t portNum, uint8_t port)
 {
     if (portNum >= sizeof(_mode)) return;
     _mode[portNum] = port;
-    writeI2C((0x18 + portNum), _mode[portNum]);
+    writeI2C((IO_CONFIG_BANK0 + portNum), _mode[portNum]);
 }
 
 /*!
@@ -111,7 +139,53 @@ void PCA9698::setModePorts(uint8_t *ports, uint8_t length)
 {
     if (length > sizeof(_mode)) return;
     memcpy(_mode, ports, length);
-    writeI2C(0x98, _mode, sizeof(_mode));   //0x98 = first IO register (0x18) plus AutoIncrement (0x80)
+    writeI2C(IO_CONFIG_BANK0 | AUTO_INCREMENT, _mode, sizeof(_mode));
+}
+
+/*!
+    @brief  Activate or deactivate single pin interrupt.
+    @param  pin
+            Pin number. 0 - 39.
+    @param  mode
+            Interrupt state. INT on = 1. INT off = 0.
+    @return None (void). 
+*/
+void PCA9698::setINT(uint8_t pin, uint8_t mode)
+{
+    uint8_t portNum = pin / 8;
+    if (portNum >= sizeof(_mode)) return;
+    uint8_t port = readI2C(MASK_INTERRUPT_BANK0 + portNum);
+    port &= ~(1 << (pin - (8 * portNum)));
+    if (mode) port |= (1 << (pin - (8 * portNum)));
+    writeI2C((MASK_INTERRUPT_BANK0 + portNum), port); 
+}
+
+/*!
+    @brief  Set INT mask of one whole port.
+    @param  portNum
+            Number of the port. 0 - 4.
+    @param  port
+            Bitmask for setting INT. INT on = 1. INT off = 0.
+    @return None (void). 
+*/
+void PCA9698::setINTPort(uint8_t portNum, uint8_t port)
+{
+    if (portNum >= 5) return;
+    writeI2C((MASK_INTERRUPT_BANK0 + portNum), port);
+}
+
+/*!
+    @brief  Set INT mask of multiple ports.
+    @param  ports
+            Array of bitmasks for setting INT. Size of array max. 5.
+    @param  length
+            Size of ports.
+    @return None (void). 
+*/
+void PCA9698::setINTPorts(uint8_t *ports, uint8_t length)
+{
+    if (length > 5) return;
+    writeI2C(MASK_INTERRUPT_BANK0 | AUTO_INCREMENT, ports, length);
 }
 
 /*!
@@ -305,7 +379,7 @@ void PCA9698::updateOutput()
 */
 void PCA9698::updateInput()
 {
-    readI2C(0x80, _inputPort, sizeof(_inputPort));
+    readI2C(AUTO_INCREMENT, _inputPort, sizeof(_inputPort));
 }
 
 /*!
@@ -314,6 +388,6 @@ void PCA9698::updateInput()
 */
 void PCA9698::updateAll()
 {
-    writeI2C(0x88, _outputPort, sizeof(_outputPort));
-    readI2C(0x80, _inputPort, sizeof(_inputPort));
+    writeI2C(OUTPUT_PORT_BANK0 | AUTO_INCREMENT, _outputPort, sizeof(_outputPort));
+    readI2C(AUTO_INCREMENT, _inputPort, sizeof(_inputPort));
 }
