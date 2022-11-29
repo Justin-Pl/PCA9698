@@ -72,18 +72,16 @@ void PCA9698::begin(uint32_t speed)
 void PCA9698::setMode(uint8_t pin, uint8_t mode)
 {
     uint8_t portNum = pin / 8;
-    if (portNum < sizeof(_mode))
+    if (portNum >= sizeof(_mode)) return;
+    if (mode)
     {
-        if (mode)
-        {
-            _mode[portNum] |= 1 << (pin + (8 * portNum));  
-        }
-        else 
-        {
-            _mode[portNum] &= ~(1 << (pin + (8 * portNum))); 
-        }
-        writeI2C((0x18 + portNum), _mode[portNum]); //0x18 first IO Register plus register num
+        _mode[portNum] |= 1 << (pin - (8 * portNum));  
     }
+    else 
+    {
+        _mode[portNum] &= ~(1 << (pin - (8 * portNum))); 
+    }
+    writeI2C((0x18 + portNum), _mode[portNum]); //0x18 first IO Register plus register num
 }
 
 /*!
@@ -96,11 +94,9 @@ void PCA9698::setMode(uint8_t pin, uint8_t mode)
 */
 void PCA9698::setModePort(uint8_t portNum, uint8_t port)
 {
-    if (portNum < sizeof(_mode))
-    {
-        _mode[portNum] = port;
-        writeI2C((0x18 + portNum), _mode[portNum]);
-    }
+    if (portNum >= sizeof(_mode)) return;
+    _mode[portNum] = port;
+    writeI2C((0x18 + portNum), _mode[portNum]);
 }
 
 /*!
@@ -113,11 +109,9 @@ void PCA9698::setModePort(uint8_t portNum, uint8_t port)
 */
 void PCA9698::setModePorts(uint8_t *ports, uint8_t length)
 {
-    if (length <= sizeof(ports))
-    {
-        memcpy(_mode, ports, length);
-        writeI2C(0x98, _mode, sizeof(_mode));   //0x98 = first IO register (0x18) plus AutoIncrement (0x80)
-    }
+    if (length > sizeof(_mode)) return;
+    memcpy(_mode, ports, length);
+    writeI2C(0x98, _mode, sizeof(_mode));   //0x98 = first IO register (0x18) plus AutoIncrement (0x80)
 }
 
 /*!
@@ -131,16 +125,14 @@ void PCA9698::setModePorts(uint8_t *ports, uint8_t length)
 void PCA9698::digitalWrite(uint8_t pin, uint8_t state)
 {
     uint8_t portNum = pin / 8;
-    if (portNum < sizeof(_outputPort))
+    if (portNum >= sizeof(_outputPort)) return;
+    if (state)
     {
-        if (state)
-        {
-            _outputPort[portNum] |= 1 << (pin + (portNum * 8));
-        }
-        else 
-        {
-            _outputPort[portNum] &= ~(1 << (pin + (portNum * 8)));
-        }
+        _outputPort[portNum] |= 1 << (pin - (portNum * 8));
+    }
+    else 
+    {
+        _outputPort[portNum] &= ~(1 << (pin - (portNum * 8)));
     }
 }
 
@@ -154,10 +146,8 @@ void PCA9698::digitalWrite(uint8_t pin, uint8_t state)
 */
 void PCA9698::digitalWritePort(uint8_t portNum, uint8_t port)
 {
-    if (portNum < sizeof(_outputPort))
-    {
-        _outputPort[portNum] = port;
-    }
+    if (portNum >= sizeof(_outputPort)) return;
+    _outputPort[portNum] = port;
 }
 
 /*!
@@ -170,10 +160,8 @@ void PCA9698::digitalWritePort(uint8_t portNum, uint8_t port)
 */
 void PCA9698::digitalWritePorts(uint8_t *ports, uint8_t length)
 {
-    if (length <= sizeof(_outputPort))
-    {
-        memcpy(_outputPort, ports, length);
-    }
+    if (length > sizeof(_outputPort)) return;
+    memcpy(_outputPort, ports, length);
 }
 
 /*!
@@ -185,10 +173,8 @@ void PCA9698::digitalWritePorts(uint8_t *ports, uint8_t length)
 uint8_t PCA9698::getOutputPin(uint8_t pin)
 {
     uint8_t portNum = pin / 8;
-    if (portNum < sizeof(_outputPort))
-    {
-        return _outputPort[portNum] >> (pin - (8 * portNum));
-    }
+    if (portNum >= sizeof(_outputPort)) return 0;
+    if (_outputPort[portNum] & (1 << (pin - (8 * portNum)))) return 1;
     return 0;
 }
 
@@ -200,11 +186,8 @@ uint8_t PCA9698::getOutputPin(uint8_t pin)
 */
 uint8_t PCA9698::getOutputPort(uint8_t portNum)
 {
-    if (portNum < sizeof(_outputPort))
-    {
-        return _outputPort[portNum];
-    }
-    return 0;
+    if (portNum >= sizeof(_outputPort)) return 0;
+    return _outputPort[portNum];
 }
 
 /*!
@@ -217,10 +200,8 @@ uint8_t PCA9698::getOutputPort(uint8_t portNum)
 */
 void PCA9698::getOutputPorts(uint8_t *ports, uint8_t length)
 {
-    if (length <= sizeof(_outputPort))
-    {
-        memcpy(ports, _outputPort, length);
-    }
+    if (length > sizeof(_outputPort)) return;
+    memcpy(ports, _outputPort, length);
 }
 
 /*!
@@ -232,10 +213,8 @@ void PCA9698::getOutputPorts(uint8_t *ports, uint8_t length)
 void PCA9698::togglePin(uint8_t pin)
 {
     uint8_t portNum = pin / 8;
-    if (pin < 5)
-    {
-        _outputPort[portNum] ^= 1 << (pin + (portNum * 8));
-    }
+    if (portNum >= sizeof(_outputPort)) return;
+    _outputPort[portNum] ^= 1 << (pin - (portNum * 8));
 }
 
 /*!
@@ -248,10 +227,8 @@ void PCA9698::togglePin(uint8_t pin)
 */
 void PCA9698::togglePort(uint8_t portNum, uint8_t port)
 {
-    if (portNum < sizeof(_outputPort))
-    {
-        _outputPort[portNum] ^= port;
-    }
+    if (portNum >= sizeof(_outputPort)) return;
+    _outputPort[portNum] ^= port;
 }
 
 /*!
@@ -264,14 +241,12 @@ void PCA9698::togglePort(uint8_t portNum, uint8_t port)
 */
 void PCA9698::togglePorts(uint8_t *ports, uint8_t length)
 {
-    if (length <= sizeof(_outputPort))
+    if (length > sizeof(_outputPort)) return;
+    uint8_t port;
+    for (uint8_t portNum = 0; portNum < length; portNum++)
     {
-        uint8_t port;
-        for (uint8_t portNum = 0; portNum < length; portNum++)
-        {
-            port = ports[portNum];
-            togglePort(portNum, port);
-        }
+        port = ports[portNum];
+        togglePort(portNum, port);
     }
 }
 
@@ -284,10 +259,8 @@ void PCA9698::togglePorts(uint8_t *ports, uint8_t length)
 uint8_t PCA9698::digitalRead(uint8_t pin)
 {
     uint8_t portNum = pin / 8;
-    if (portNum < sizeof(_inputPort))
-    {
-        return _inputPort[portNum] >> (pin - (8 * portNum));
-    }
+    if (portNum >= sizeof(_inputPort)) return 0;
+    if (_inputPort[portNum] & (1 << (pin - (8 * portNum)))) return 1;
     return 0;
 }
 
@@ -299,11 +272,8 @@ uint8_t PCA9698::digitalRead(uint8_t pin)
 */
 uint8_t PCA9698::digitalReadPort(uint8_t portNum)
 {
-    if (portNum < sizeof(_inputPort))
-    {
-        return _inputPort[portNum];
-    }
-    return 0;
+    if (portNum >= sizeof(_inputPort)) return 0;
+    return _inputPort[portNum];
 }
 
 /*!
@@ -316,10 +286,8 @@ uint8_t PCA9698::digitalReadPort(uint8_t portNum)
 */
 void PCA9698::digitalReadPorts(uint8_t *ports, uint8_t length)
 {
-    if (length <= sizeof(_inputPort))
-    {
-        memcpy(ports, _inputPort, length);
-    }
+    if (length > sizeof(_inputPort)) return;
+    memcpy(ports, _inputPort, length);
 }
 
 /*!
