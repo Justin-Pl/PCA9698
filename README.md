@@ -9,9 +9,13 @@ Arduino library for the GPIO Driver PCA9698 from NXP. Tested and functional on A
 
 ## Functions
 begin()\
+config()\
 setMode()\
 setModePort()\
 setModePorts()\
+setINT()\
+setINTPort()\
+setINTPorts()\
 digitalWrite()\
 digitalWritePort()\
 digitalWritePorts()\
@@ -38,10 +42,18 @@ PCA9698 gpio;
 void setup()
 {
     //Init the I2C bus and must be called in setup
-    //Speed is optional. If called empty, default is 100 KHz
+    //Config and Speed is optional. 
+    //If called empty, default is 
+    //OE pin active LOW, 
+    //outputs change on STOP, 
+    //device cant respond to 'GPIO All Call'
+    //SMBAlert off and
+    //100 KHz bus speed
     gpio.begin();
+    //You can also config the PCA9698 after the begin call
+    gpio.config(OE_POL_HIGH | OUTPUT_CHANGE_ACK | GPIO_ALL_CALL_ON | SMBA_ON);
     //or
-    //gpio.begin(I2C_FAST_MODE);
+    //gpio.begin(OE_POL_HIGH | OUTPUT_CHANGE_ACK | GPIO_ALL_CALL_ON | SMBA_ON, I2C_FAST_MODE);
 }
 
 void loop()
@@ -94,6 +106,41 @@ void setup()
     //Second param is the size of the array. Max size is 5.
     uint8_t modes[5] = {0xFF, 0x00, 0xFF, 0xFF, 0xFF};
     gpio.setModePorts(modes, sizeof(modes));
+}
+
+void loop()
+{
+
+}
+```
+<br/>
+
+You can also set the interrupt mask for all 5 Banks. They will be written directly to the slave. 
+```c++
+#include <PCA9698.h>
+
+PCA9698 gpio;
+
+void setup()
+{
+    gpio.begin();   //Call to init I2C Bus
+
+
+    //First param is the pin from 0 - 39
+    //Second param is the mode of the IO
+    gpio.setINT(0, INT_ON);  
+    gpio.setINT(1, INT_OFF);
+    
+    //First param is the IO bank. There are 5 banks of 8bit.
+    //Second param is the bitmask for the bank. 1 = output, 0 = input.
+    gpio.setINTPort(1, 0b11110000);
+    
+    //This function use a bitmask array to config the interrupt mask. 
+    //All IOs can be configured with only two lines of code.
+    //First param is the bitmask array. Every index is one 8bit bank.
+    //Second param is the size of the array. Max size is 5.
+    uint8_t modes[5] = {0x00, 0x00, 0xFF, 0xFF, 0xFF};
+    gpio.setINTPorts(modes, sizeof(modes));
 }
 
 void loop()
